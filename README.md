@@ -1,6 +1,9 @@
 HTML templates to JS
 ====================
 
+! Important. This is just a quick hack to create js template for .html import for typescript.
+
+
 This gulp plugin converts a html file with templates into a js file containing an object with all templates as strings.
 
 Writing template inside a structured HTML file is much more practical than in a one line javascript string.
@@ -29,50 +32,13 @@ This example shows how this plugin turn html into a js object.
 
 *HTML Source* :
 ```html
-<div id="templates">
-
-	<div id="my-example-template">
-		<p>A {{ handlebar }} example.</p>
-	</div>
-	
+<div>
+    <p>A {{ handlebar }} example.</p>
 </div>
 ```
 
 *The generated output* :
 ```javascript
-var templates = {"my-example-template":"<p>A {{ handlebar }} example.</p>"}
+var template = "<p>A {{ handlebar }} example.</p>";
+export { template };
 ```
-
-Custom JS Code
---------------
-
-If you like to adjust the content of the generated js file you can define that inside the html file.
-
-*HTML Source including custom js* :
-```html
-<script id="file-content" type="text/javascript">
-// Here I can program whatever I want.
-var myProject = {};
-myProject.templates = <%= templates %>;
-</script>
-
-<div id="templates">
-
-	<div id="my-example-template">
-		<p>A {{ handlebar }} example.</p>
-	</div>
-	
-</div>
-```
-
-*The generated output* :
-```javascript
-// Here I can program whatever I want.
-var myProject = {};
-myProject.templates = {"my-example-template":"<p>A {{ handlebar }} example.</p>"};
-```
-
-Options
--------
-
-`{ ext:'js' }` The extension of the generated output file. If you like to generate something different that a js file. For example for Coffescript or Typescript.
