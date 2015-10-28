@@ -1,7 +1,6 @@
 var gutil = require('gulp-util');
 var through = require('through2');
 var _ = require('lodash');
-var cheerio = require("cheerio");
 var template = _.template;
 
 //consts
@@ -31,9 +30,9 @@ module.exports = function( options ) {
 		
 		if( file.isBuffer() ) {
 			
-			var html = cheerio.load( file.contents.toString() );
-			var templates = parseTemplates( html );
-			var fileContent = parseFileContent( html );
+			var html = file.contents.toString();
+			var templates = getEscapedTemplateContent(html);
+            var fileContent = templateString();
 			var compiled = template( fileContent );
 			var content = compiled( { templates:JSON.stringify( templates ) } );
 			file.contents = new Buffer( content );
@@ -47,34 +46,13 @@ module.exports = function( options ) {
 	});
 };
 
+function getEscapedTemplateContent(templateContent) {
+    return templateContent
+        .replace(/\\/g, "\\\\");
+};
 
-function parseTemplates( html ) {
-	
-	var data = {};
-
-	html( '#templates' ).children().each( function( i, element ) {
-		
-		var node = cheerio( this );
-		var text = node.html();
-		
-		// remove formatting
-		text = text.replace( /\n|\r|\t/g, '' );
-		
-		// decode html entities
-		text = text.replace( /&apos;/g, "'" ).replace( /&amp;/g, "&" ).replace( /&gt;/g, ">" ).replace( /&lt;/g, "<" ).replace( /&quot;/g, '"' );
-		
-		data[ node.attr( 'id' ) ] = text;
-	});
-	
-	return data;
-}
-
-function parseFileContent( html ) {
-	
-	var node = html( '#file-content' );
-	if( node.is( '#file-content' ) ) {
-		return node.html();
-	} else {
-		return 'var templates = <%= templates %>';
-	}
-}
+function templateString() {
+    return 'var template = <%= templates %> \n' +
+        'export default template; \n' +
+        'export { template };';
+};
